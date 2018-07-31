@@ -7,12 +7,12 @@ import sklearn
 from sklearn.model_selection import train_test_split
 import keras
 from keras.models import Sequential, Model
-from keras.layers import Flatten, Dense, Lambda, Conv2D, Activation
+from keras.layers import Flatten, Dense, Lambda, Conv2D, Activation, BatchNormalization, Cropping2D, Dropout
 from keras.layers.pooling import MaxPooling2D
 import csv
 
-data_log = './driving_log.csv'
-image_dir = './IMG/'
+data_log = './data/driving_log.csv'
+image_dir = './data//IMG/'
 
 data = list()
 with open(data_log) as csvfile:
@@ -23,6 +23,9 @@ with open(data_log) as csvfile:
 train_data, valid_data = train_test_split(data, test_size=0.2)
 
 def random_augment(image, angle):
+    if np.random.randint(0,2) == 1:
+        image = cv2.flip(image, 1)
+        angle = -angle
     return image, angle
 
 def generate_batch(data, batch_size=32):
@@ -37,6 +40,7 @@ def generate_batch(data, batch_size=32):
             for batch_data in batch:
                 center_name = image_dir + batch_data[0].split('/')[-1]
                 center_image = cv2.imread(center_name)
+                center_image = cv2.cvtColor(center_image, cv2.COLOR_BGR2RGB)
                 center_angle = float(batch_data[3])
                 center_image, center_angle = random_augment(center_image, center_angle)
                 
@@ -46,25 +50,46 @@ def generate_batch(data, batch_size=32):
             Y_train = np.array(angles)
             yield sklearn.utils.shuffle(X_train, Y_train)
             
-train_generator = generate_batch(train_data)
-valid_generator = generate_batch(valid_data)
+train_generator = generate_batch(train_data, batch_size=64)
+valid_generator = generate_batch(valid_data, batch_size=64)
 
 ch, row, col = 3, 160, 320
 
 model = Sequential()
+
 model.add(Lambda(lambda x: x/255, input_shape=(row, col, ch), output_shape=(row, col, ch)))
-model.add(Conv2D(32, (3,3), strides=2))
+
+model.add(Cropping2D(((50,20), (0,0))))
+
+model.add(Conv2D(32, (3,3), strides=2, kernel_initializer='truncated_normal', bias_initializer='zeros'))
+model.add(BatchNormalization())
 model.add(Activation('relu'))
-model.add(Conv2D(64, (3,3), strides=2))
+
+model.add(Conv2D(64, (3,3), strides=2, kernel_initializer='truncated_normal', bias_initializer='zeros'))
+model.add(BatchNormalization())
 model.add(Activation('relu'))
+
+model.add(Conv2D(128, (3,3), strides=2, kernel_initializer='truncated_normal', bias_initializer='zeros'))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+
+model.add(Conv2D(256, (3,3), strides=2, kernel_initializer='truncated_normal', bias_initializer='zeros'))
+model.add(BatchNormalization())
+model.add(Activation('relu'))          
+
 model.add(Flatten())
-model.add(Dense(1024))
+
+model.add(Dense(1024, kernel_initializer='truncated_normal', bias_initializer='zeros'))
+model.add(BatchNormalization())
 model.add(Activation('relu'))
-model.add(Dense(1024))
+model.add(Dropout(0.5))
+
+model.add(Dense(1024, kernel_initializer='truncated_normal', bias_initializer='zeros'))
+model.add(BatchNormalization())
 model.add(Activation('relu'))
-model.add(Dense(1024))
-model.add(Activation('relu'))
-model.add(Dense(1))
+model.add(Dropout(0.5))
+
+model.add(Dense(1, kernel_initializer='truncated_normal', bias_initializer='zeros'))
 
 model.compile(loss='mse', optimizer='adam')
 model.fit_generator(train_generator, steps_per_epoch=len(train_data),
