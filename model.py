@@ -11,6 +11,7 @@ from keras import backend as K
 from keras.models import Sequential
 from keras.layers import Flatten, Dense, Lambda, Conv2D, Activation, BatchNormalization, Cropping2D, Dropout
 from keras.layers.pooling import MaxPooling2D
+from keras.callbacks import EarlyStopping
 
 data_log = './data/driving_log.csv'
 image_dir = './data//IMG/'
@@ -31,17 +32,30 @@ def random_augment(image, angle):
 
 
 def normal_load(data):
+    offset = 0.11
     images = []
     angles = []
-    for line in data:
-        center_name = line[0]
+    for center_name, left_name, right_name, steering, throttle, brake, speed in data:
+        steering = float(steering)
+        # Center Images
         center_image = cv2.imread(center_name)
         center_image = cv2.cvtColor(center_image, cv2.COLOR_BGR2RGB)
-        center_angle = float(line[3])
-        center_image, center_angle = random_augment(center_image, center_angle)
+        center_image, center_angle = random_augment(center_image, steering)
+        # Left Images
+        left_image = cv2.imread(left_name)
+        left_image = cv2.cvtColor(left_image, cv2.COLOR_BGR2RGB)
+        left_image, left_angle = random_augment(left_image, steering+offset)
+        #Right Images
+        right_image = cv2.imread(right_name)
+        right_image = cv2.cvtColor(right_image, cv2.COLOR_BGR2RGB)
+        right_image, right_angle = random_augment(right_image, steering-offset)
 
         images.append(center_image)
         angles.append(center_angle)
+        images.append(left_image)
+        angles.append(left_angle)
+        images.append(right_image)
+        angles.append(right_angle)
 
     X_train = np.array(images)
     Y_train = np.array(angles)
@@ -60,7 +74,7 @@ model.add(Lambda(lambda x: x/255, input_shape=(row, col, ch), output_shape=(row,
 
 model.add(Cropping2D(((50, 20), (0, 0))))
 
-model.add(Lambda(lambda img: K.tf.image.resize_images(img, (64,64))))
+# model.add(Lambda(lambda img: K.tf.image.resize_images(img, (64,64))))
 
 model.add(Conv2D(3, (1,1), kernel_initializer='truncated_normal', bias_initializer='zeros'))
 model.add(BatchNormalization())
@@ -85,7 +99,7 @@ model.add(Activation('relu'))
 model.add(Flatten())
 model.add(Dropout(0.5))
 
-model.add(Dense(256, kernel_initializer='truncated_normal', bias_initializer='zeros'))
+model.add(Dense(128, kernel_initializer='truncated_normal', bias_initializer='zeros'))
 model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
@@ -99,8 +113,10 @@ model.add(Dense(1, kernel_initializer='truncated_normal', bias_initializer='zero
 
 model.summary()
 opt = keras.optimizers.Adam(1e-4)
+early_stop = EarlyStopping(monitor='val_loss', patience=3, verbose=1, min_delta=0.0005)
 model.compile(loss='mse', optimizer=opt)
 model.fit(train_features, train_labels, validation_data=valid_data,
-                    epochs=10, verbose=1, batch_size=32)
+          callbacks=[early_stop],
+          epochs=100, verbose=1, batch_size=32)
 
 model.save('model.h5')
