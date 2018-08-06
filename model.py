@@ -12,9 +12,10 @@ from keras.models import Sequential
 from keras.layers import Flatten, Dense, Lambda, Conv2D, Activation, BatchNormalization, Cropping2D, Dropout
 from keras.layers.pooling import MaxPooling2D
 from keras.callbacks import EarlyStopping
+from pathlib import Path, PureWindowsPath, PurePath
 
 data_log = './data/driving_log.csv'
-image_dir = './data//IMG/'
+image_dir = Path('./data//IMG/')
 
 data = list()
 with open(data_log) as csvfile:
@@ -36,6 +37,10 @@ def normal_load(data):
     images = []
     angles = []
     for center_name, left_name, right_name, steering, throttle, brake, speed in data:
+        center_name = str(image_dir.joinpath(PureWindowsPath(center_name).parts[-1]))
+        left_name = str(image_dir.joinpath(PureWindowsPath(left_name).parts[-1]))
+        right_name = str(image_dir.joinpath(PureWindowsPath(right_name).parts[-1]))
+        
         steering = float(steering)
         # Center Images
         center_image = cv2.imread(center_name)
