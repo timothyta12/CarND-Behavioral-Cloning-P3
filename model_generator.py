@@ -13,6 +13,7 @@ from keras.layers import Flatten, Dense, Lambda, Conv2D, Activation, BatchNormal
 from keras.layers.pooling import MaxPooling2D
 
 data_log = './data/driving_log.csv'
+image_dir = Path('./data//IMG/')
 
 data = list()
 with open(data_log) as csvfile:
