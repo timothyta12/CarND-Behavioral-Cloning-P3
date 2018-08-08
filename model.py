@@ -3,7 +3,6 @@ import sys
 import csv
 import cv2
 import numpy as np
-from random import shuffle
 import sklearn
 from sklearn.model_selection import train_test_split
 import keras
@@ -25,10 +24,22 @@ with open(data_log) as csvfile:
         
 train_data, valid_data = train_test_split(data, test_size=0.2)
 
+def flip(image, angle):
+    new_image = cv2.flip(image, 1)
+    new_angle = -angle
+    return new_image, new_angle
+
+def random_brightness(image, angle):
+    multiplier = np.random.uniform(0.7, 1.3)
+    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    hsv[:,:,2] = multiplier*hsv[:,:,2]
+    new_image = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+    return new_image, angle
+
 def random_augment(image, angle):
     if np.random.randint(0,2) == 1:
-        image = cv2.flip(image, 1)
-        angle = -angle
+        image, angle = flip(image, angle)
+    image, angle = random_brightness(image, angle)
     return image, angle
 
 
@@ -46,19 +57,18 @@ def normal_load(data):
         center_image = cv2.imread(center_name)
         center_image = cv2.cvtColor(center_image, cv2.COLOR_BGR2RGB)
         center_image, center_angle = random_augment(center_image, steering)
+        images.append(center_image)
+        angles.append(center_angle)
         # Left Images
         left_image = cv2.imread(left_name)
         left_image = cv2.cvtColor(left_image, cv2.COLOR_BGR2RGB)
         left_image, left_angle = random_augment(left_image, steering+offset)
+        images.append(left_image)
+        angles.append(left_angle)
         #Right Images
         right_image = cv2.imread(right_name)
         right_image = cv2.cvtColor(right_image, cv2.COLOR_BGR2RGB)
         right_image, right_angle = random_augment(right_image, steering-offset)
-
-        images.append(center_image)
-        angles.append(center_angle)
-        images.append(left_image)
-        angles.append(left_angle)
         images.append(right_image)
         angles.append(right_angle)
 
@@ -104,12 +114,12 @@ model.add(Activation('relu'))
 model.add(Flatten())
 model.add(Dropout(0.5))
 
-model.add(Dense(128, kernel_initializer='truncated_normal', bias_initializer='zeros'))
+model.add(Dense(512, kernel_initializer='truncated_normal', bias_initializer='zeros'))
 model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 
-model.add(Dense(128, kernel_initializer='truncated_normal', bias_initializer='zeros'))
+model.add(Dense(512, kernel_initializer='truncated_normal', bias_initializer='zeros'))
 model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
