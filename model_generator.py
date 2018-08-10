@@ -21,7 +21,7 @@ with open(data_log) as csvfile:
     reader = csv.reader(csvfile)
     for line in reader:
         data.append(line)
-        
+
 train_data, valid_data = train_test_split(data, test_size=0.2)
 
 def flip(image, angle):
@@ -30,7 +30,7 @@ def flip(image, angle):
     return new_image, new_angle
 
 def random_brightness(image, angle):
-    multiplier = np.random.uniform(0.7, 1.3)
+    multiplier = np.random.uniform(0.5, 1.)
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     hsv[:,:,2] = multiplier*hsv[:,:,2]
     new_image = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
@@ -48,7 +48,7 @@ def generate_batch(data, batch_size=32):
         shuffle(data)
         for offset in range(0, num_samples, batch_size):
             batch = data[offset:offset+batch_size]
-            
+            steering_offset = 0.13
             images = []
             angles = []
             for center_name, left_name, right_name, steering, throttle, brake, speed in batch:
@@ -66,18 +66,17 @@ def generate_batch(data, batch_size=32):
                 # Left Images
                 left_image = cv2.imread(left_name)
                 left_image = cv2.cvtColor(left_image, cv2.COLOR_BGR2RGB)
-                left_image, left_angle = random_augment(left_image, steering + offset)
+                left_image, left_angle = random_augment(left_image, steering + steering_offset)
                 images.append(left_image)
                 angles.append(left_angle)
                 # Right Images
                 right_image = cv2.imread(right_name)
                 right_image = cv2.cvtColor(right_image, cv2.COLOR_BGR2RGB)
-                right_image, right_angle = random_augment(right_image, steering - offset)
+                right_image, right_angle = random_augment(right_image, steering - steering_offset)
                 images.append(right_image)
                 angles.append(right_angle)
             X_train = np.array(images)
             Y_train = np.array(angles)
-            print("Yielding a batch")
             yield sklearn.utils.shuffle(X_train, Y_train)
             
 train_generator = generate_batch(train_data, batch_size=64)
@@ -89,9 +88,9 @@ model = Sequential()
 
 model.add(Lambda(lambda x: x/255, input_shape=(row, col, ch), output_shape=(row, col, ch)))
 
-model.add(Cropping2D(((50, 20), (0, 0))))
+model.add(Cropping2D(((20, 20), (0, 0))))
 
-# model.add(Lambda(lambda img: K.tf.image.resize_images(img, (64,64))))
+model.add(Lambda(lambda img: K.tf.image.resize_images(img, (64,64))))
 
 model.add(Conv2D(32, (3,3), strides=2, kernel_initializer='truncated_normal', bias_initializer='zeros'))
 model.add(BatchNormalization())

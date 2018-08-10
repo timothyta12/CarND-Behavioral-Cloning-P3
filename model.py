@@ -21,8 +21,9 @@ with open(data_log) as csvfile:
     reader = csv.reader(csvfile)
     for line in reader:
         data.append(line)
-        
-train_data, valid_data = train_test_split(data, test_size=0.2)
+
+train_data, test_data = train_test_split(data, test_size=0.3)
+valid_data, test_data = train_test_split(test_data, test_size=0.5)
 
 def flip(image, angle):
     new_image = cv2.flip(image, 1)
@@ -114,12 +115,12 @@ model.add(Activation('relu'))
 model.add(Flatten())
 model.add(Dropout(0.5))
 
-model.add(Dense(512, kernel_initializer='truncated_normal', bias_initializer='zeros'))
+model.add(Dense(128, kernel_initializer='truncated_normal', bias_initializer='zeros'))
 model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 
-model.add(Dense(512, kernel_initializer='truncated_normal', bias_initializer='zeros'))
+model.add(Dense(128, kernel_initializer='truncated_normal', bias_initializer='zeros'))
 model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
@@ -133,5 +134,9 @@ model.compile(loss='mse', optimizer=opt)
 model.fit(train_features, train_labels, validation_data=valid_data,
           callbacks=[early_stop],
           epochs=100, verbose=1, batch_size=32)
+
+test_features, test_labels = normal_load(test_data)
+test_loss = model.evaluate(x=test_features, y=test_labels)
+print(test_loss)
 
 model.save('model.h5')
