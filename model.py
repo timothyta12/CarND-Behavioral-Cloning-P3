@@ -3,10 +3,6 @@ import sys
 import csv
 import cv2
 import numpy as np
-<<<<<<< HEAD
-=======
-from random import shuffle
->>>>>>> refs/remotes/origin/master
 import sklearn
 from sklearn.model_selection import train_test_split
 import keras
@@ -25,7 +21,6 @@ with open(data_log) as csvfile:
     reader = csv.reader(csvfile)
     for line in reader:
         data.append(line)
-<<<<<<< HEAD
 
 train_data, test_data = train_test_split(data, test_size=0.3)
 valid_data, test_data = train_test_split(test_data, test_size=0.5)
@@ -58,62 +53,34 @@ def random_augment(image, angle):
     if np.random.randint(0,2) == 1:
         image, angle = flip(image, angle)
     image, angle = random_brightness(image, angle)
-=======
-        
-train_data, valid_data = train_test_split(data, test_size=0.2)
-
-def random_augment(image, angle):
-    if np.random.randint(0,2) == 1:
-        image = cv2.flip(image, 1)
-        angle = -angle
->>>>>>> refs/remotes/origin/master
     return image, angle
 
 
 def normal_load(data):
-<<<<<<< HEAD
     offset = 0.13
-=======
-    offset = 0.11
->>>>>>> refs/remotes/origin/master
     images = []
     angles = []
     for center_name, left_name, right_name, steering, throttle, brake, speed in data:
         center_name = str(image_dir.joinpath(PureWindowsPath(center_name).parts[-1]))
         left_name = str(image_dir.joinpath(PureWindowsPath(left_name).parts[-1]))
         right_name = str(image_dir.joinpath(PureWindowsPath(right_name).parts[-1]))
-        
         steering = float(steering)
         # Center Images
         center_image = cv2.imread(center_name)
         center_image = cv2.cvtColor(center_image, cv2.COLOR_BGR2RGB)
         center_image, center_angle = random_augment(center_image, steering)
-<<<<<<< HEAD
         images.append(center_image)
         angles.append(center_angle)
-=======
->>>>>>> refs/remotes/origin/master
         # Left Images
         left_image = cv2.imread(left_name)
         left_image = cv2.cvtColor(left_image, cv2.COLOR_BGR2RGB)
         left_image, left_angle = random_augment(left_image, steering+offset)
-<<<<<<< HEAD
         images.append(left_image)
         angles.append(left_angle)
-=======
->>>>>>> refs/remotes/origin/master
-        #Right Images
+        # Right Images
         right_image = cv2.imread(right_name)
         right_image = cv2.cvtColor(right_image, cv2.COLOR_BGR2RGB)
         right_image, right_angle = random_augment(right_image, steering-offset)
-<<<<<<< HEAD
-=======
-
-        images.append(center_image)
-        angles.append(center_angle)
-        images.append(left_image)
-        angles.append(left_angle)
->>>>>>> refs/remotes/origin/master
         images.append(right_image)
         angles.append(right_angle)
 
@@ -132,15 +99,9 @@ model = Sequential()
 
 model.add(Lambda(lambda x: x/255, input_shape=(row, col, ch), output_shape=(row, col, ch)))
 
-<<<<<<< HEAD
 model.add(Cropping2D(((20, 20), (0, 0))))
 
 model.add(Lambda(lambda img: K.tf.image.resize_images(img, (64,64))))
-=======
-model.add(Cropping2D(((50, 20), (0, 0))))
-
-# model.add(Lambda(lambda img: K.tf.image.resize_images(img, (64,64))))
->>>>>>> refs/remotes/origin/master
 
 model.add(Conv2D(3, (1,1), kernel_initializer='truncated_normal', bias_initializer='zeros'))
 model.add(BatchNormalization())
@@ -160,25 +121,17 @@ model.add(Activation('relu'))
 
 model.add(Conv2D(256, (3,3), strides=2, kernel_initializer='truncated_normal', bias_initializer='zeros'))
 model.add(BatchNormalization())
-model.add(Activation('relu'))          
+model.add(Activation('relu'))
 
 model.add(Flatten())
 model.add(Dropout(0.5))
 
-<<<<<<< HEAD
 model.add(Dense(512, kernel_initializer='truncated_normal', bias_initializer='zeros'))
-=======
-model.add(Dense(128, kernel_initializer='truncated_normal', bias_initializer='zeros'))
->>>>>>> refs/remotes/origin/master
 model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 
-<<<<<<< HEAD
 model.add(Dense(512, kernel_initializer='truncated_normal', bias_initializer='zeros'))
-=======
-model.add(Dense(128, kernel_initializer='truncated_normal', bias_initializer='zeros'))
->>>>>>> refs/remotes/origin/master
 model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
@@ -193,11 +146,8 @@ model.fit(train_features, train_labels, validation_data=valid_data,
           callbacks=[early_stop],
           epochs=100, verbose=1, batch_size=32)
 
-<<<<<<< HEAD
 test_features, test_labels = normal_load(test_data)
 test_loss = model.evaluate(x=test_features, y=test_labels)
 print(test_loss)
 
-=======
->>>>>>> refs/remotes/origin/master
 model.save('model.h5')

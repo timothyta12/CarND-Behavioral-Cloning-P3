@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Behavioral Cloning
 
 ## Overview
@@ -94,9 +93,6 @@ Each layer is activated using Relu to provide nonlinearity.
 
 Overfitting is a major consideration since the data is not very diverse, since the data is comprised of images from only two tracks.
 To reduce overfitting, I implemented batch normalization and dropout layers. Dropout helps create redundancy in the network, such as multiple ways to identify the lane.
-=======
-# Behavioral Cloning Project
->>>>>>> refs/remotes/origin/master
 
 ```
 _________________________________________________________________
@@ -183,16 +179,6 @@ This shows that the car is not simply driving down a predetermined route and is 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=EvfkU8xFkZA
 " target="_blank"><img src="http://img.youtube.com/vi/EvfkU8xFkZA/0.jpg" 
 alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
-
-<<<<<<< HEAD
-Track Two, however, needed a little help around certain corners.
-=======
-### Tips
-- Please keep in mind that training images are loaded in BGR colorspace using cv2 while drive.py load images in RGB to predict the steering angles.
-
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
->>>>>>> refs/remotes/origin/master
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=6Cr-JwSrklI
 " target="_blank"><img src="http://img.youtube.com/vi/6Cr-JwSrklI/0.jpg" 
