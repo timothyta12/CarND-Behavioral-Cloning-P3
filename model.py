@@ -30,7 +30,7 @@ def flip(image, angle):
     return new_image, new_angle
 
 def random_brightness(image, angle):
-    multiplier = np.random.uniform(0.7, 1.3)
+    multiplier = np.random.uniform(0.5, 1.)
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
     hsv[:,:,2] = multiplier*hsv[:,:,2]
     new_image = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
@@ -44,7 +44,7 @@ def random_augment(image, angle):
 
 
 def normal_load(data):
-    offset = 0.11
+    offset = 0.13
     images = []
     angles = []
     for center_name, left_name, right_name, steering, throttle, brake, speed in data:
@@ -87,9 +87,9 @@ model = Sequential()
 
 model.add(Lambda(lambda x: x/255, input_shape=(row, col, ch), output_shape=(row, col, ch)))
 
-model.add(Cropping2D(((50, 20), (0, 0))))
+model.add(Cropping2D(((20, 20), (0, 0))))
 
-# model.add(Lambda(lambda img: K.tf.image.resize_images(img, (64,64))))
+model.add(Lambda(lambda img: K.tf.image.resize_images(img, (64,64))))
 
 model.add(Conv2D(3, (1,1), kernel_initializer='truncated_normal', bias_initializer='zeros'))
 model.add(BatchNormalization())
