@@ -22,7 +22,8 @@ with open(data_log) as csvfile:
     for line in reader:
         data.append(line)
 
-train_data, valid_data = train_test_split(data, test_size=0.2)
+train_data, test_data = train_test_split(data, test_size=0.3)
+valid_data, test_data = train_test_split(test_data, test_size=0.5)
 
 def flip(image, angle):
     new_image = cv2.flip(image, 1)
@@ -128,5 +129,9 @@ model.compile(loss='mse', optimizer=opt)
 model.fit_generator(train_generator, steps_per_epoch=len(train_data),
                     validation_data=valid_generator, validation_steps=len(valid_data),
                     epochs=1, verbose=1)
+
+test_features, test_labels = normal_load(test_data)
+test_loss = model.evaluate(x=test_features, y=test_labels)
+print(test_loss)
 
 model.save('model.h5')
