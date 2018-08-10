@@ -37,6 +37,18 @@ def random_brightness(image, angle):
     new_image = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
     return new_image, angle
 
+def flip(image, angle):
+    new_image = cv2.flip(image, 1)
+    new_angle = -angle
+    return new_image, new_angle
+
+def random_brightness(image, angle):
+    multiplier = np.random.uniform(0.7, 1.3)
+    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+    hsv[:,:,2] = multiplier*hsv[:,:,2]
+    new_image = cv2.cvtColor(hsv, cv2.COLOR_HSV2RGB)
+    return new_image, angle
+
 def random_augment(image, angle):
     if np.random.randint(0,2) == 1:
         image, angle = flip(image, angle)
@@ -115,12 +127,12 @@ model.add(Activation('relu'))
 model.add(Flatten())
 model.add(Dropout(0.5))
 
-model.add(Dense(128, kernel_initializer='truncated_normal', bias_initializer='zeros'))
+model.add(Dense(512, kernel_initializer='truncated_normal', bias_initializer='zeros'))
 model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
 
-model.add(Dense(128, kernel_initializer='truncated_normal', bias_initializer='zeros'))
+model.add(Dense(512, kernel_initializer='truncated_normal', bias_initializer='zeros'))
 model.add(BatchNormalization())
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
