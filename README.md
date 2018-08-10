@@ -138,27 +138,27 @@ flatten_1 (Flatten)          (None, 2304)              0
 _________________________________________________________________
 dropout_1 (Dropout)          (None, 2304)              0
 _________________________________________________________________
-dense_1 (Dense)              (None, 128)               295040
+dense_1 (Dense)              (None, 512)               1180160
 _________________________________________________________________
-batch_normalization_6 (Batch (None, 128)               512
+batch_normalization_6 (Batch (None, 512)               2048
 _________________________________________________________________
-activation_6 (Activation)    (None, 128)               0
+activation_6 (Activation)    (None, 512)               0
 _________________________________________________________________
-dropout_2 (Dropout)          (None, 128)               0
+dropout_2 (Dropout)          (None, 512)               0
 _________________________________________________________________
-dense_2 (Dense)              (None, 128)               16512
+dense_2 (Dense)              (None, 512)               262656
 _________________________________________________________________
-batch_normalization_7 (Batch (None, 128)               512
+batch_normalization_7 (Batch (None, 512)               2048
 _________________________________________________________________
-activation_7 (Activation)    (None, 128)               0
+activation_7 (Activation)    (None, 512)               0
 _________________________________________________________________
-dropout_3 (Dropout)          (None, 128)               0
+dropout_3 (Dropout)          (None, 512)               0
 _________________________________________________________________
-dense_3 (Dense)              (None, 1)                 129
+dense_3 (Dense)              (None, 1)                 513
 =================================================================
-Total params: 703,065
-Trainable params: 701,587
-Non-trainable params: 1,478
+Total params: 1,837,785
+Trainable params: 1,834,771
+Non-trainable params: 3,014
 _________________________________________________________________
 Train on 12486 samples, validate on 2676 samples
 ```
@@ -169,17 +169,13 @@ In this particular instance, I was able to use Keras's _fit_ function. However, 
 The solution to this is to use Keras's _fit_generator_ function. This function only holds a few batches at a time instead of the entire dataset in memory.
 However, there is a trade off between speed and memory.
 
-- _model.fit_ is able to preprocess the entire dataset and is readily avaiable, but fails when the dataset is too large.
+- _model.fit_ is able to preprocess the entire dataset and is readily available, but fails when the dataset is too large.
 - _model.fit_generator_ is divide the dataset into chunks but will have to process the data each time.
 
 ## Results
 Ultimately, the model was able to drive around Track One smoothly. Although not shown here, I manually steered the car toward one side of the road and it corrected itself back to the center.
 This shows that the car is not simply driving down a predetermined route and is robust to different situations.
 
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=EvfkU8xFkZA
-" target="_blank"><img src="http://img.youtube.com/vi/EvfkU8xFkZA/0.jpg" 
-alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>
-
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=6Cr-JwSrklI
-" target="_blank"><img src="http://img.youtube.com/vi/6Cr-JwSrklI/0.jpg" 
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=jS_v0nl3tXw
+" target="_blank"><img src="http://img.youtube.com/vi/jS_v0nl3tXw/0.jpg" 
 alt="IMAGE ALT TEXT HERE" width="240" height="180" border="10" /></a>

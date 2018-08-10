@@ -148,6 +148,6 @@ model.fit(train_features, train_labels, validation_data=valid_data,
 
 test_features, test_labels = normal_load(test_data)
 test_loss = model.evaluate(x=test_features, y=test_labels)
-print(test_loss)
+print("Training loss: {}".format(test_loss))
 
 model.save('model.h5')
