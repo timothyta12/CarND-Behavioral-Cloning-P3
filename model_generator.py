@@ -130,8 +130,4 @@ model.fit_generator(train_generator, steps_per_epoch=len(train_data),
                     validation_data=valid_generator, validation_steps=len(valid_data),
                     epochs=1, verbose=1)
 
-test_features, test_labels = normal_load(test_data)
-test_loss = model.evaluate(x=test_features, y=test_labels)
-print(test_loss)
-
 model.save('model.h5')
